@@ -1,0 +1,59 @@
+---
+import Base from '../layouts/Base.astro';
+import { about, ui, certs, photo, type Lang } from '../data/site';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const c = about[lang];
+const t = ui[lang];
+const path = lang === 'en' ? '/about' : '/fr/profil';
+const contactHref = lang === 'en' ? '/contact' : '/fr/contact';
+---
+
+<Base lang={lang} title={c.metaTitle} description={c.metaDesc} path={path}>
+  <section class="hero">
+    <div class="wrap">
+      <h1>{c.h1}</h1>
+      <div class="hero-split">
+        <div>
+          {c.body.map((p, i) => <p class={i === 0 ? 'lede' : undefined}>{p}</p>)}
+        </div>
+        <img
+          class="portrait-lg"
+          src={photo.portrait}
+          alt="Marco Pecoraro, SAP EWM and TM consultant"
+          width="800"
+          height="800"
+        />
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="rail">
+      <div class="rail-label">{c.langHeading}</div>
+      <div class="rail-body"><p style="margin-bottom:0">{c.langBody}</p></div>
+    </div>
+    <div class="rail">
+      <div class="rail-label">{c.eduHeading}</div>
+      <div class="rail-body"><p style="margin-bottom:0">{c.eduBody}</p></div>
+    </div>
+    <div class="rail">
+      <div class="rail-label">{t.certHeading}</div>
+      <div class="rail-body">
+        <ul class="plain" style="margin-bottom:0">
+          {certs.map((cert) => <li>{cert[lang]}<span class="yr">{cert.year}</span></li>)}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <section class="section cta" style="margin-top:2.5rem" data-reveal>
+    <div class="wrap">
+      <h2>{t.contactCta}</h2>
+      <p>{t.available}</p>
+      <a class="button" href={contactHref}>{t.contactCta}</a>
+      <a class="button button-quiet" href={t.cvFile} style="margin-left:.6rem;color:var(--paper)!important;border-color:var(--steel)">{t.cvDownload}</a>
+    </div>
+  </section>
+</Base>

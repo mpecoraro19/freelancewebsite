@@ -1,0 +1,71 @@
+---
+import Base from '../layouts/Base.astro';
+import { expertise, gallery, ui, type Lang } from '../data/site';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const c = expertise[lang];
+const t = ui[lang];
+const path = lang === 'en' ? '/sap-expertise' : '/fr/expertise-sap';
+const contactHref = lang === 'en' ? '/contact' : '/fr/contact';
+---
+
+<Base lang={lang} title={c.metaTitle} description={c.metaDesc} path={path}>
+  <section class="hero">
+    <div class="wrap">
+      <p class="status">{t.available}</p>
+      <h1>{c.h1}</h1>
+      <p class="lede">{c.lede}</p>
+    </div>
+  </section>
+
+  <section class="section" data-reveal>
+    <div class="wrap">
+      {c.groups.map((g: { t: string; href?: string; items: string[] }) => (
+        <div class="group">
+          <h3>{g.href ? <a href={g.href}>{g.t}</a> : g.t}</h3>
+          <ul>{g.items.map((i) => <li>{i}</li>)}</ul>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="section" data-reveal>
+    <div class="wrap">
+      <div class="section-head"><h2>{c.trackHeading}</h2></div>
+      <ul class="track">
+        {c.track.map((r) => (
+          <li>
+            <div class="when">{r.when}</div>
+            <div>
+              <div class="what">{r.what}</div>
+              <div class="where">{r.where}</div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" data-reveal>
+    <div class="wrap">
+      <div class="section-head"><h2>{c.galleryHeading}</h2></div>
+      <div class="shots">
+        {gallery.map((g) => (
+          <figure>
+            <img src={g.src} alt={g.alt[lang]} loading="lazy" width={g.w} height={g.h} />
+            <figcaption>{g.caption[lang]}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section cta" data-reveal>
+    <div class="wrap">
+      <h2>{lang === 'en' ? 'Need something on this list?' : 'Besoin de quelque chose dans cette liste ?'}</h2>
+      <p>{t.available}</p>
+      <a class="button" href={contactHref}>{t.contactCta}</a>
+    </div>
+  </section>
+</Base>

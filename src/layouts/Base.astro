@@ -1,0 +1,189 @@
+---
+import '../styles/global.css';
+import { SITE, person, ui, altPath, type Lang } from '../data/site';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  description: string;
+  path: string;
+  /** extra JSON-LD object(s) appended after the Person graph */
+  schema?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const { lang, title, description, path, schema } = Astro.props;
+const t = ui[lang];
+const other: Lang = lang === 'en' ? 'fr' : 'en';
+const otherPath = altPath(path, lang);
+const canonical = SITE + path;
+const extraSchemas = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
+
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: person.name,
+  url: SITE,
+  email: 'mailto:' + person.email,
+  telephone: person.phone,
+  jobTitle:
+    lang === 'en'
+      ? 'SAP EWM and TM Consultant'
+      : 'Consultant SAP EWM et TM',
+  description:
+    lang === 'en'
+      ? 'Freelance SAP EWM and Transportation Management consultant working remotely on SAP S/4HANA.'
+      : 'Consultant indépendant SAP EWM et Transportation Management, en télétravail sur SAP S/4HANA.',
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: person.city,
+    addressRegion: person.region,
+    addressCountry: person.country,
+  },
+  image: SITE + '/img/marco-pecoraro.webp',
+  sameAs: [person.linkedin],
+  knowsLanguage: ['en', 'fr', 'es', 'it'],
+  knowsAbout: [
+    'SAP Extended Warehouse Management',
+    'SAP Transportation Management',
+    'SAP S/4HANA',
+    'SAP Production Planning',
+    'SAP Quality Management',
+    'Warehouse automation',
+    'Material Flow System',
+  ],
+  hasCredential: [
+    {
+      '@type': 'EducationalOccupationalCredential',
+      name: 'SAP Certified Application Associate — Transportation Management in SAP S/4HANA',
+      credentialCategory: 'certification',
+      recognizedBy: { '@type': 'Organization', name: 'SAP' },
+    },
+    {
+      '@type': 'EducationalOccupationalCredential',
+      name: 'SAP Certified Application Associate — Extended Warehouse Management with SAP S/4HANA',
+      credentialCategory: 'certification',
+      recognizedBy: { '@type': 'Organization', name: 'SAP' },
+    },
+  ],
+};
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  name: 'Marco Pecoraro — SAP EWM & TM Consulting',
+  url: SITE,
+  founder: { '@type': 'Person', name: person.name },
+  email: 'mailto:' + person.email,
+  telephone: person.phone,
+  areaServed: 'Worldwide',
+  availableLanguage: ['English', 'French', 'Spanish', 'Italian'],
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: person.city,
+    addressRegion: person.region,
+    addressCountry: person.country,
+  },
+  knowsAbout: ['SAP EWM', 'SAP TM', 'SAP S/4HANA', 'SAP PP'],
+};
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="en" href={SITE + (lang === 'en' ? path : otherPath)} />
+    <link rel="alternate" hreflang="fr" href={SITE + (lang === 'fr' ? path : otherPath)} />
+    <link rel="alternate" hreflang="x-default" href={SITE + (lang === 'en' ? path : otherPath)} />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+    <meta name="author" content={person.name} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={person.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={lang === 'en' ? 'en_CA' : 'fr_CA'} />
+    <meta name="twitter:card" content="summary" />
+
+    <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(serviceSchema)} />
+    {extraSchemas.map((s) => <script type="application/ld+json" set:html={JSON.stringify(s)} />)}
+  </head>
+
+  <body>
+    <a class="skip" href="#main">{t.skipToContent}</a>
+
+    <header class="masthead">
+      <div class="wrap masthead-inner">
+        <a class="wordmark" href={lang === 'en' ? '/' : '/fr/'}>
+          Marco Pecoraro
+          <span>
+            {lang === 'en'
+              ? 'SAP EWM, TM & PP consultant'
+              : 'Consultant SAP EWM, TM et PP'}
+          </span>
+        </a>
+        <nav class="nav" aria-label={lang === 'en' ? 'Main' : 'Principale'}>
+          {
+            t.nav.map((item) => (
+              <a href={item.href} aria-current={item.href === path ? 'page' : undefined}>
+                {item.label}
+              </a>
+            ))
+          }
+        </nav>
+        <a class="lang" href={otherPath} hreflang={other} lang={other} title={t.langSwitchLabel}>
+          {t.langSwitch}
+        </a>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="foot">
+      <div class="wrap">
+        <div class="foot-links">
+          <a href={`mailto:${person.email}`}>{person.email}</a>
+          <a href={`tel:${person.phone}`}>{person.phoneDisplay}</a>
+          <a href={person.linkedin} rel="me noopener">LinkedIn</a>
+          <a href={t.cvFile}>{t.cvDownload}</a>
+        </div>
+        <p>{t.footerNote}</p>
+        <p class="foot-fine">
+          &copy; {new Date().getFullYear()} {person.name}. {t.footerRights}
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      const targets = document.querySelectorAll<HTMLElement>('[data-reveal]');
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        targets.forEach((el) => el.classList.add('is-visible'));
+      } else if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                io.unobserve(entry.target);
+              }
+            }
+          },
+          { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+        );
+        targets.forEach((el) => io.observe(el));
+      } else {
+        targets.forEach((el) => el.classList.add('is-visible'));
+      }
+    </script>
+  </body>
+</html>

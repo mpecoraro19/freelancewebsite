@@ -1,0 +1,104 @@
+---
+import Base from '../layouts/Base.astro';
+import ProjectEntry from './ProjectEntry.astro';
+import { home, ui, certs, byId, photo, gallery, type Lang } from '../data/site';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const c = home[lang];
+const t = ui[lang];
+const path = lang === 'en' ? '/' : '/fr/';
+const shown = [byId('ewm-qm-full-cycle'), byId('tm-best-practices'), byId('mfs-a-frame'), byId('upgrade-1809-2023')];
+const contactHref = lang === 'en' ? '/contact' : '/fr/contact';
+const projectsHref = lang === 'en' ? '/projects' : '/fr/projets';
+const banner = gallery[2];
+---
+
+<Base lang={lang} title={c.metaTitle} description={c.metaDesc} path={path}>
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-split">
+        <div>
+          <p class="status">{t.available}</p>
+          <h1>{c.h1}</h1>
+          <p class="lede">{c.lede}</p>
+        </div>
+        <img
+          class="portrait"
+          src={photo.portrait}
+          alt="Marco Pecoraro"
+          width="800"
+          height="800"
+        />
+      </div>
+    </div>
+  </section>
+
+  <figure class="feature-photo">
+    <img src={banner.src} alt={banner.alt[lang]} loading="eager" fetchpriority="high" width={banner.w} height={banner.h} />
+    <figcaption>{banner.caption[lang]}</figcaption>
+  </figure>
+
+  <div class="wrap">
+    <div class="rail">
+      <div class="rail-label">{c.releasesLabel}</div>
+      <div class="rail-body">
+        <ul class="plain">
+          {c.releases.map((r) => <li>{r}</li>)}
+        </ul>
+      </div>
+    </div>
+
+    <div class="rail">
+      <div class="rail-label">{t.certHeading}</div>
+      <div class="rail-body">
+        <ul class="plain">
+          {
+            certs.map((cert) => (
+              <li>
+                {cert[lang]}
+                <span class="yr">{cert.year}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <section class="section" data-reveal>
+    <div class="wrap">
+      <div class="section-head"><h2>{c.whatHeading}</h2></div>
+      <ul class="caps">
+        {
+          c.what.map((w) => (
+            <li>
+              <h3>{w.t}</h3>
+              <p>{w.d}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" data-reveal>
+    <div class="wrap">
+      <div class="section-head"><h2>{c.projectsHeading}</h2></div>
+      {shown.map((p) => <ProjectEntry project={p} lang={lang} />)}
+      <p style="margin-top:1.5rem">
+        <a class="entry-more" href={projectsHref}>{t.allProjects}</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="section cta" data-reveal>
+    <div class="wrap">
+      <h2>{c.ctaHeading}</h2>
+      <p>{c.ctaBody}</p>
+      <a class="button" href={contactHref}>{t.contactCta}</a>
+    </div>
+  </section>
+</Base>

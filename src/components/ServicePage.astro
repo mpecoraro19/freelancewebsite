@@ -1,0 +1,161 @@
+---
+import Base from '../layouts/Base.astro';
+import ProjectEntry from './ProjectEntry.astro';
+import { services, ui, byId, gallery, type Lang } from '../data/site';
+
+type ServiceKey = keyof typeof services;
+
+interface Props {
+  lang: Lang;
+  service: ServiceKey;
+}
+const { lang, service } = Astro.props;
+const s = services[service];
+const c: any = s[lang];
+const t = ui[lang];
+const list = s.projectIds.map((id) => byId(id));
+const contactHref = lang === 'en' ? '/contact' : '/fr/contact';
+
+const paths: Record<ServiceKey, { en: string; fr: string }> = {
+  ewm: { en: '/sap-ewm-consultant', fr: '/fr/consultant-sap-ewm' },
+  tm: { en: '/sap-tm-consultant', fr: '/fr/consultant-sap-tm' },
+  ppqm: { en: '/sap-pp-qm-consultant', fr: '/fr/consultant-sap-pp-qm' },
+  process: { en: '/warehouse-process-consulting', fr: '/fr/conseil-processus-entrepot' },
+};
+const path = paths[service][lang];
+
+const serviceType: Record<ServiceKey, string> = {
+  ewm: 'SAP EWM consulting',
+  tm: 'SAP TM consulting',
+  ppqm: 'SAP PP and QM consulting',
+  process: 'Warehouse process consulting',
+};
+
+const photoIndex: Record<ServiceKey, number> = { ewm: 0, tm: 1, ppqm: 3, process: 2 };
+const banner = gallery[photoIndex[service]];
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: c.h1,
+  description: c.metaDesc,
+  serviceType: serviceType[service],
+  provider: { '@type': 'Person', name: 'Marco Pecoraro' },
+  areaServed: 'Worldwide',
+};
+
+const faqSchema = c.faq
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: c.faq.map((f: { q: string; a: string }) => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: f.a },
+      })),
+    }
+  : null;
+
+const schema = faqSchema ? [serviceSchema, faqSchema] : serviceSchema;
+const certHeading = c.certHeading ?? t.certHeading;
+---
+
+<Base lang={lang} title={c.metaTitle} description={c.metaDesc} path={path} schema={schema}>
+  <section class="hero">
+    <div class="wrap">
+      <p class="status">{t.available}</p>
+      <h1>{c.h1}</h1>
+      <p class="lede">{c.lede}</p>
+    </div>
+  </section>
+
+  {
+    banner && (
+      <figure class="feature-photo">
+        <img src={banner.src} alt={banner.alt[lang]} loading="eager" fetchpriority="high" width={banner.w} height={banner.h} />
+        <figcaption>{banner.caption[lang]}</figcaption>
+      </figure>
+    )
+  }
+
+  <div class="wrap">
+    {
+      c.certNote && (
+        <div class="rail">
+          <div class="rail-label">{certHeading}</div>
+          <div class="rail-body">
+            <p style="margin-bottom:0">{c.certNote}</p>
+          </div>
+        </div>
+      )
+    }
+    <div class="rail">
+      <div class="rail-label">{c.deployHeading}</div>
+      <div class="rail-body">
+        <ul class="plain" style="margin-bottom:0">
+          {c.deploy.map((d: string) => <li>{d}</li>)}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <section class="section" data-reveal>
+    <div class="wrap">
+      <ul class="caps">
+        {
+          c.blocks.map((b: { t: string; d: string }) => (
+            <li>
+              <h3>{b.t}</h3>
+              <p>{b.d}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  {
+    list.length > 0 && (
+      <section class="section" data-reveal>
+        <div class="wrap">
+          <div class="section-head"><h2>{c.projHeading}</h2></div>
+          {list.map((p) => <ProjectEntry project={p} lang={lang} />)}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    c.faq && (
+      <section class="section" data-reveal>
+        <div class="wrap">
+          <div class="section-head"><h2>{lang === 'en' ? 'Questions people actually ask' : 'Questions fréquentes'}</h2></div>
+          <div class="faq">
+            {
+              c.faq.map((f: { q: string; a: string }) => (
+                <div class="faq-item">
+                  <h3>{f.q}</h3>
+                  <p>{f.a}</p>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section cta" data-reveal>
+    <div class="wrap">
+      <h2>{lang === 'en' ? 'Available now' : 'Disponible dès maintenant'}</h2>
+      <p>
+        {
+          lang === 'en'
+            ? 'Remote contract work, with travel on site for design workshops, cutover and go-live.'
+            : 'Mandats en télétravail, avec déplacements pour les ateliers de conception, la bascule et la mise en service.'
+        }
+      </p>
+      <a class="button" href={contactHref}>{t.contactCta}</a>
+    </div>
+  </section>
+</Base>

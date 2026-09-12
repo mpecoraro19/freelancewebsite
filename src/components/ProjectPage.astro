@@ -1,0 +1,73 @@
+---
+import Base from '../layouts/Base.astro';
+import { ui, gallery, type Lang, type Project } from '../data/site';
+
+interface Props { lang: Lang; project: Project }
+const { lang, project } = Astro.props;
+const t = ui[lang];
+const path = lang === 'en' ? `/projects/${project.slug}` : `/fr/projets/${project.slugFr}`;
+const backHref = lang === 'en' ? '/projects' : '/fr/projets';
+const contactHref = lang === 'en' ? '/contact' : '/fr/contact';
+const shot = project.id === 'mfs-a-frame' ? gallery[0] : null;
+const title = project.meta ? project.meta.title[lang] : project.title[lang];
+const desc = project.meta ? project.meta.desc[lang] : project.summary[lang];
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  name: project.title[lang],
+  abstract: project.summary[lang],
+  about: 'SAP S/4HANA implementation',
+  author: { '@type': 'Person', name: 'Marco Pecoraro' },
+  inLanguage: lang,
+};
+---
+
+<Base lang={lang} title={title} description={desc} path={path} schema={schema}>
+  <section class="hero">
+    <div class="wrap">
+      <p class="status" style="color:var(--steel)">{project.dates[lang]}</p>
+      <h1>{project.title[lang]}</h1>
+      <p class="lede">{project.summary[lang]}</p>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="rail">
+      <div class="rail-label">{lang === 'en' ? 'My role' : 'Mon rôle'}</div>
+      <div class="rail-body"><p style="margin-bottom:0">{project.role[lang]}</p></div>
+    </div>
+    <div class="rail">
+      <div class="rail-label">{lang === 'en' ? 'Context' : 'Contexte'}</div>
+      <div class="rail-body"><p style="margin-bottom:0">{project.context[lang]}</p></div>
+    </div>
+  </div>
+
+  <section class="section" data-reveal>
+    <div class="wrap">
+      <div class="section-head"><h2>{lang === 'en' ? 'What I did' : 'Ce que j’ai fait'}</h2></div>
+      {shot && (
+        <div class="shots" style="grid-template-columns:1fr;margin-bottom:1.75rem">
+          <figure>
+            <img src={shot.src} alt={shot.alt[lang]} loading="lazy" width={shot.w} height={shot.h} />
+            <figcaption>{shot.caption[lang]}</figcaption>
+          </figure>
+        </div>
+      )}
+      <ul class="spec">
+        {project.detail && project.detail[lang].map((d) => <li>{d}</li>)}
+      </ul>
+      <p style="margin-top:1.75rem">
+        <a class="entry-more" href={backHref}>{t.allProjects}</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="section cta" data-reveal>
+    <div class="wrap">
+      <h2>{lang === 'en' ? 'Similar project on your desk?' : 'Un projet semblable chez vous ?'}</h2>
+      <p>{lang === 'en' ? 'Tell me the release and where it is stuck.' : 'Dites-moi la version et où ça bloque.'}</p>
+      <a class="button" href={contactHref}>{t.contactCta}</a>
+    </div>
+  </section>
+</Base>

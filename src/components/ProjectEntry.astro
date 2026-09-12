@@ -1,0 +1,26 @@
+---
+import { ui, projectHref, type Lang, type Project } from '../data/site';
+
+interface Props {
+  project: Project;
+  lang: Lang;
+}
+
+const { project, lang } = Astro.props;
+const t = ui[lang];
+const href = projectHref(project, lang);
+---
+
+<article class="entry">
+  <div class="entry-date">{project.dates[lang]}</div>
+  <div>
+    <h3>
+      {href ? <a href={href}>{project.title[lang]}</a> : project.title[lang]}
+    </h3>
+    <div class="entry-role">
+      {project.role[lang]} — {project.context[lang]}
+    </div>
+    <p>{project.summary[lang]}</p>
+    {href && <a class="entry-more" href={href}>{t.readMore}</a>}
+  </div>
+</article>

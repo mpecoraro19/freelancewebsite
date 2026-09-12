@@ -1,0 +1,59 @@
+---
+import Base from '../layouts/Base.astro';
+import { contact, ui, person, type Lang } from '../data/site';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const c = contact[lang];
+const t = ui[lang];
+const path = lang === 'en' ? '/contact' : '/fr/contact';
+---
+
+<Base lang={lang} title={c.metaTitle} description={c.metaDesc} path={path}>
+  <section class="hero">
+    <div class="wrap">
+      <h1>{c.h1}</h1>
+      <p class="lede">{c.lede}</p>
+    </div>
+  </section>
+
+  <section class="section" data-reveal>
+    <div class="wrap contact-grid">
+      <div>
+        <h2>{c.directHeading}</h2>
+        <ul class="plain">
+          <li><a href={`mailto:${person.email}`}>{person.email}</a></li>
+          <li><a href={`tel:${person.phone}`}>{person.phoneDisplay}</a></li>
+          <li><a href={person.linkedin} rel="me noopener">LinkedIn</a></li>
+          <li><a href={t.cvFile}>{t.cvDownload}</a></li>
+        </ul>
+        <p class="note">{t.footerNote}</p>
+      </div>
+
+      <div>
+        <h2>{c.formHeading}</h2>
+        <form action="https://formspree.io/f/REPLACE_WITH_YOUR_FORM_ID" method="POST">
+          <label class="field">
+            <span>{t.formName}</span>
+            <input type="text" name="name" required autocomplete="name" />
+          </label>
+          <label class="field">
+            <span>{t.formEmail}</span>
+            <input type="email" name="email" required autocomplete="email" />
+          </label>
+          <label class="field">
+            <span>{t.formCompany}</span>
+            <input type="text" name="company" autocomplete="organization" />
+          </label>
+          <label class="field">
+            <span>{t.formMessage}</span>
+            <textarea name="message" required></textarea>
+          </label>
+          <input type="hidden" name="_language" value={lang} />
+          <button type="submit">{t.formSubmit}</button>
+        </form>
+        <p class="note" style="margin-top:1rem">{t.formNote}</p>
+      </div>
+    </div>
+  </section>
+</Base>

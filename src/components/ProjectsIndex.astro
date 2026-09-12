@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+import ProjectEntry from './ProjectEntry.astro';
+import { projectsPage, projects, ui, type Lang } from '../data/site';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const c = projectsPage[lang];
+const t = ui[lang];
+const path = lang === 'en' ? '/projects' : '/fr/projets';
+const contactHref = lang === 'en' ? '/contact' : '/fr/contact';
+---
+
+<Base lang={lang} title={c.metaTitle} description={c.metaDesc} path={path}>
+  <section class="hero">
+    <div class="wrap">
+      <h1>{c.h1}</h1>
+      <p class="lede">{c.lede}</p>
+    </div>
+  </section>
+
+  <section class="section" data-reveal>
+    <div class="wrap">
+      {projects.map((p) => <ProjectEntry project={p} lang={lang} />)}
+    </div>
+  </section>
+
+  <section class="section cta" data-reveal>
+    <div class="wrap">
+      <h2>{lang === 'en' ? 'Want the detail on one of these?' : 'Vous voulez le détail de l’un d’eux ?'}</h2>
+      <p>{lang === 'en' ? 'Ask me about any project here and I will walk you through the configuration decisions and what broke along the way.' : 'Posez-moi une question sur n’importe quel projet et je vous expliquerai les choix de configuration et ce qui a mal tourné en chemin.'}</p>
+      <a class="button" href={contactHref}>{t.contactCta}</a>
+    </div>
+  </section>
+</Base>
